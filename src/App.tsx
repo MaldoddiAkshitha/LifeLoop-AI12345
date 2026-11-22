@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Megaphone, ScanSearch, LayoutDashboard, Trophy, Loader2 } from 'lucide-react';
 import { supabase, type Report, type Category, type Priority } from './lib/supabase';
-import { analyzeDescription, analyzeImage, findDuplicates } from './lib/ai';
+import { analyzeDescription, analyzeImage, analyzeReport, findDuplicates } from './lib/ai';
 import { Logo } from './components/Logo';
 import { ImpactScore } from './components/ImpactScore';
 import { ReportCard } from './components/ReportCard';
@@ -92,7 +92,7 @@ export default function App() {
       onStage('analysing');
       await new Promise((r) => setTimeout(r, 700));
 
-      const textAnalysis = analyzeDescription(draft.description);
+      const textAnalysis = await analyzeReport(draft.description);
       let category: Category = textAnalysis.category;
       let confidence = textAnalysis.confidence;
 
