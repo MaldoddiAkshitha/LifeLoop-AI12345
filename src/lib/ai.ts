@@ -71,24 +71,21 @@ const DANGER_WORDS = ['accident', 'injur', 'danger', 'emergency', 'unsafe', 'col
 const QUALIFIER_WORDS = ['minor', 'small', 'slight', 'tiny', 'little', 'near'];
 
 export async function analyzeReport(description: string): Promise<AnalysisResult> {
-  const response = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ description }),
-  });
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description }),
+    });
 
-  if (!response.ok) {
-    let message = 'AI analysis is temporarily unavailable. Please try again.';
-    try {
-      const body = (await response.json()) as { error?: string };
-      if (body.error) message = body.error;
-    } catch {
-      // Keep the safe fallback message when the server response is not JSON.
+    if (response.ok) {
+      return (await response.json()) as AnalysisResult;
     }
-    throw new Error(message);
+  } catch {
+    // Use the built-in analyzer if the cloud AI service is unavailable.
   }
 
-  return (await response.json()) as AnalysisResult;
+  return analyzeDescription(description);
 }
 
 export function analyzeDescription(description: string): AnalysisResult {
