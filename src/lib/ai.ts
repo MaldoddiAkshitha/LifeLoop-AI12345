@@ -70,6 +70,27 @@ const RULES: Rule[] = [
 const DANGER_WORDS = ['accident', 'injur', 'danger', 'emergency', 'unsafe', 'collapse', 'spark', 'fire', 'shock'];
 const QUALIFIER_WORDS = ['minor', 'small', 'slight', 'tiny', 'little', 'near'];
 
+export async function analyzeReport(description: string): Promise<AnalysisResult> {
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ description }),
+  });
+
+  if (!response.ok) {
+    let message = 'AI analysis is temporarily unavailable. Please try again.';
+    try {
+      const body = (await response.json()) as { error?: string };
+      if (body.error) message = body.error;
+    } catch {
+      // Keep the safe fallback message when the server response is not JSON.
+    }
+    throw new Error(message);
+  }
+
+  return (await response.json()) as AnalysisResult;
+}
+
 export function analyzeDescription(description: string): AnalysisResult {
   const text = description.toLowerCase();
 
