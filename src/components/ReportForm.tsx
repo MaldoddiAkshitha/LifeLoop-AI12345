@@ -179,7 +179,7 @@ export function ReportForm({ onSubmit }: Props) {
         {preview && (
           <p className="mt-1.5 text-xs text-stone-500 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            Quick estimate (AI verifies on submit): looks like <span className="font-semibold text-emerald-700">{CATEGORY_LABELS[preview.category]}</span>
+            Quick estimate (cloud AI refines this on submit when available): looks like <span className="font-semibold text-emerald-700">{CATEGORY_LABELS[preview.category]}</span>
             , suggested priority <span className="font-semibold">{preview.priority}</span>
           </p>
         )}
