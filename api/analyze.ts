@@ -20,7 +20,8 @@ export default async function handler(request: ApiRequest, response: ApiResponse
   if (typeof body === 'string') {
     try {
       body = JSON.parse(body);
-    } catch {
+  } catch (error) {
+    console.error('AI Gateway report analysis failed', error instanceof Error ? error.name : 'UnknownError');
       return response.status(400).json({ error: 'Invalid request body.' });
     }
   }
@@ -75,6 +76,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
     });
 
     if (!gatewayResponse.ok) {
+      console.error('AI Gateway rejected report analysis', { status: gatewayResponse.status });
       return response.status(502).json({ error: 'AI analysis is temporarily unavailable. Please try again.' });
     }
 
