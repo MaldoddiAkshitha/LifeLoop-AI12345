@@ -84,7 +84,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
     const modelText = completion.choices?.[0]?.message?.content;
     if (typeof modelText !== 'string') throw new Error('Invalid model output');
 
-    const jsonText = modelText.trim().replace(/^\`\`\`(?:json)?\\s*/i, '').replace(/\\s*\`\`\`$/, '');
+    const jsonText = modelText.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
     const parsed: unknown = JSON.parse(jsonText);
     if (!parsed || typeof parsed !== 'object') throw new Error('Invalid model output');
 
