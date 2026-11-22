@@ -1,6 +1,7 @@
 type ApiRequest = {
   method?: string;
   body?: unknown;
+  headers?: Record<string, string | string[] | undefined>;
 };
 type ApiResponse = {
   status(code: number): ApiResponse;
@@ -36,7 +37,9 @@ export default async function handler(request: ApiRequest, response: ApiResponse
   const environment = (globalThis as unknown as {
     process?: { env?: Record<string, string | undefined> };
   }).process?.env;
-  const token = environment?.AI_GATEWAY_API_KEY || environment?.VERCEL_OIDC_TOKEN;
+  const oidcHeader = request.headers?.['x-vercel-oidc-token'];
+  const oidcToken = Array.isArray(oidcHeader) ? oidcHeader[0] : oidcHeader;
+  const token = environment?.AI_GATEWAY_API_KEY || oidcToken || environment?.VERCEL_OIDC_TOKEN;
   if (!token) {
     return response.status(503).json({ error: 'AI analysis is not configured for this deployment.' });
   }
@@ -81,7 +84,7 @@ export default async function handler(request: ApiRequest, response: ApiResponse
     const modelText = completion.choices?.[0]?.message?.content;
     if (typeof modelText !== 'string') throw new Error('Invalid model output');
 
-    const jsonText = modelText.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+    const jsonText = modelText.trim().replace(/^\`\`\`(?:json)?\\s*/i, '').replace(/\\s*\`\`\`$/, '');
     const parsed: unknown = JSON.parse(jsonText);
     if (!parsed || typeof parsed !== 'object') throw new Error('Invalid model output');
 
